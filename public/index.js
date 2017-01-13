@@ -195,9 +195,9 @@ function rentalPrice(rental)
       percent = 0.5 * priceDay;
       priceDay = priceDay - percent;
     }
-  var time =diffDays*priceDay;
+  var time =diffDays*(priceDay);
   var distance = rental.distance * priceKm
-  rental.price= time + distance;
+  rental.price= time + distance + deductible(rental);
   return rental.price;
 }
 
@@ -212,14 +212,23 @@ function diffDay(rental)
 
 function commission(rental)
 {
-  var commission = rentalPrice(rental);
+  var commission = rentalPrice(rental) - deductible(rental);
   var commission = commission - (70/100)*commission;
   var diffDays = diffDay(rental);
   rental.commission.insurance=commission/2;
   rental.commission.assistance=diffDays;
-  rental.commission.drivy=commission-commission/2-diffDays;
+  rental.commission.drivy=commission-commission/2-diffDays + deductible(rental);
 }
-
+function deductible(rental)
+{
+  if (rental.options.deductibleReduction==true)
+  {
+    return diffDay(rental)*4;
+  }
+  else {
+    return 0;
+  }
+}
 
 for (var i=0;i<rentals.length;i++)
 {
