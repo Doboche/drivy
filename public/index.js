@@ -167,6 +167,7 @@ var rentalModifications = [{
 
 function rentalPrice(rental)
 {
+  var percent=0;
   var priceDay=0;
   var priceKm=0;
   var dateReturn = new Date(rental.returnDate);
@@ -185,6 +186,21 @@ function rentalPrice(rental)
   var time =diffDays*priceDay;
   var distance = rental.distance * priceKm
   rental.price= time + distance;
+  if(diffDays > 1 && diffDays<=4)
+  {
+    percent = 0.1 * rental.price;
+    rental.price = rental.price - percent;
+  }
+  else if(diffDays>4 && diffDays<=10)
+  {
+    percent = 0.3 * rental.price;
+    rental.price = rental.price - percent;
+  }
+  else if(diffDays>10)
+  {
+    percent = 0.5 * rental.price;
+    rental.price = rental.price - percent;
+  }
 }
 
 for (var i=0;i<rentals.length;i++)
