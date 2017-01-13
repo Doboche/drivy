@@ -170,10 +170,7 @@ function rentalPrice(rental)
   var percent=0;
   var priceDay=0;
   var priceKm=0;
-  var dateReturn = new Date(rental.returnDate);
-  var datePickup = new Date(rental.pickupDate);
-  var timeDiff = Math.abs(dateReturn.getTime() - datePickup.getTime());
-  var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) +1;
+  var diffDays=diffDay(rental);
   var carID=rental.carId;
   for (var j=0; j<cars.length;j++)
     {
@@ -183,29 +180,51 @@ function rentalPrice(rental)
         priceKm = cars[j].pricePerKm;
       }
     }
+    if(diffDays > 1 && diffDays<=4)
+    {
+      percent = 0.1 * priceDay;
+      priceDay = priceDay - percent;
+    }
+    else if(diffDays>4 && diffDays<=10)
+    {
+      percent = 0.3 * priceDay;
+      priceDay = priceDay - percent;
+    }
+    else if(diffDays>10)
+    {
+      percent = 0.5 * priceDay;
+      priceDay = priceDay - percent;
+    }
   var time =diffDays*priceDay;
   var distance = rental.distance * priceKm
   rental.price= time + distance;
-  if(diffDays > 1 && diffDays<=4)
-  {
-    percent = 0.1 * rental.price;
-    rental.price = rental.price - percent;
-  }
-  else if(diffDays>4 && diffDays<=10)
-  {
-    percent = 0.3 * rental.price;
-    rental.price = rental.price - percent;
-  }
-  else if(diffDays>10)
-  {
-    percent = 0.5 * rental.price;
-    rental.price = rental.price - percent;
-  }
+  return rental.price;
 }
+
+function diffDay(rental)
+{
+  var dateReturn = new Date(rental.returnDate);
+  var datePickup = new Date(rental.pickupDate);
+  var timeDiff = Math.abs(dateReturn.getTime() - datePickup.getTime());
+  var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) +1;
+  return diffDays;
+}
+
+function commission(rental)
+{
+  var commission = rentalPrice(rental);
+  var commission = commission - (70/100)*commission;
+  var diffDays = diffDay(rental);
+  rental.commission.insurance=commission/2;
+  rental.commission.assistance=diffDays;
+  rental.commission.drivy=commission-commission/2-diffDays;
+}
+
 
 for (var i=0;i<rentals.length;i++)
 {
   rentalPrice(rentals[i]);
+  commission(rentals[i]);
 }
 console.log(cars);
 console.log(rentals);
