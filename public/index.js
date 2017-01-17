@@ -165,7 +165,7 @@ var rentalModifications = [{
   'pickupDate': '2015-12-05'
 }];
 
-function rentalPrice(rental)
+function rentalPrice(rental) //calculate the rentalprice
 {
   var percent=0;
   var priceDay=0;
@@ -201,7 +201,7 @@ function rentalPrice(rental)
   return rental.price;
 }
 
-function diffDay(rental)
+function diffDay(rental) //calculte the number of days of a rent
 {
   var dateReturn = new Date(rental.returnDate);
   var datePickup = new Date(rental.pickupDate);
@@ -210,7 +210,7 @@ function diffDay(rental)
   return diffDays;
 }
 
-function commission(rental)
+function commission(rental) //calculate the commission
 {
   var commission = rentalPrice(rental) - deductible(rental);
   var commission = commission - (70/100)*commission;
@@ -219,7 +219,7 @@ function commission(rental)
   rental.commission.assistance=diffDays;
   rental.commission.drivy=commission-commission/2-diffDays + deductible(rental);
 }
-function deductible(rental)
+function deductible(rental) //check the deductible option
 {
   if (rental.options.deductibleReduction==true)
   {
@@ -230,10 +230,51 @@ function deductible(rental)
   }
 }
 
+function payActor(actor) //pay all the actors
+{
+  for(var i=0;i<rentals.length;i++)
+  {
+  if(actor.rentalId==rentals[i].id)
+  {
+    for(var j=0;j<actor.payment.length;j++)
+    {
+    if(actor.payment[j].who=="driver")
+    {
+      actor.payment[j].amount= rentalPrice(rentals[i]);
+    }
+    else if (actor.payment[j].who=="owner")
+    {
+      actor.payment[j].amount = rentalPrice(rentals[i]) - (30/100) * rentalPrice(rentals[i]);
+    }
+    else if (actor.payment[j].who=="insurance")
+    {
+      actor.payment[j].amount = rentals[i].commission.insurance;
+    }
+    else if (actor.payment[j].who=="assistance")
+    {
+      actor.payment[j].amount = rentals[i].commission.assistance;
+    }
+    else if (actor.payment[j].who=="drivy")
+    {
+      actor.payment[j].amount = rentals[i].commission.drivy;
+    }
+  }
+}
+}
+}
+
 for (var i=0;i<rentals.length;i++)
 {
   rentalPrice(rentals[i]);
   commission(rentals[i]);
+}
+/*for(var j=0;j<actors.length;j++)
+{
+  payActor(actors[j]);
+}*/
+for(var j=0;j<actors.length;j++)
+{
+payActor(actors[j]);
 }
 console.log(cars);
 console.log(rentals);
